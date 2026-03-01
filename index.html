@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SYS://BUILD_LOG — Pritama Patra</title>
+
+<!-- Custom metallic crosshair cursor SVG -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:ital,wght@0,200;0,300;0,400;0,600;1,300&display=swap');
+
+:root {
+  --void:       #020407;
+  --deep:       #060C12;
+  --panel:      #0A1520;
+  --panel2:     #0F1E2E;
+  --edge:       #1A3040;
+  --edge2:      #243850;
+  --steel:      #8BA8BE;
+  --chrome:     #C8DDE8;
+  --white:      #E8F4F8;
+  --plasma:     #00D4FF;
+  --plasma-dim: #0088AA;
+  --plasma-bg:  rgba(0,212,255,0.06);
+  --amber:      #FFB800;
+  --amber-dim:  #996E00;
+  --amber-bg:   rgba(255,184,0,0.07);
+  --toxic:      #39FF14;
+  --toxic-dim:  #1A8000;
+  --toxic-bg:   rgba(57,255,20,0.06);
+  --danger:     #FF3060;
+  --danger-bg:  rgba(255,48,96,0.07);
+  --violet:     #9D4EDD;
+  --violet-bg:  rgba(157,78,221,0.08);
+  --font-hud:   'Orbitron', monospace;
+  --font-body:  'Exo 2', sans-serif;
+  --font-code:  'Share Tech Mono', monospace;
+  --glow-plasma: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1);
+  --glow-amber:  0 0 20px rgba(255,184,0,0.3), 0 0 60px rgba(255,184,0,0.1);
+}
+
+/* ─── CURSOR ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; cursor: none !important; }
+body { cursor: none !important; }
+a, button, [onclick], .toc-list a, .project-section * { cursor: none !important; }
+
+#cursor-ring {
+  position: fixed;
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--plasma);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%,-50%);
+  transition: width 0.12s, height 0.12s, border-color 0.12s, opacity 0.12s;
+  box-shadow: 0 0 8px rgba(0,212,255,0.6), inset 0 0 8px rgba(0,212,255,0.1);
+  mix-blend-mode: screen;
+}
+#cursor-dot {
+  position: fixed;
+  width: 4px; height: 4px;
+  background: var(--plasma);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 6px var(--plasma), 0 0 16px var(--plasma);
+  mix-blend-mode: screen;
+}
+#cursor-cross-h {
+  position: fixed;
+  width: 18px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--plasma), transparent);
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%,-50%);
+  mix-blend-mode: screen;
+}
+#cursor-cross-v {
+  position: fixed;
+  width: 1px; height: 18px;
+  background: linear-gradient(180deg, transparent, var(--plasma), transparent);
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%,-50%);
+  mix-blend-mode: screen;
+}
+
+/* ─── BASE ─── */
+html, body { font-family: var(--font-body); background: var(--void); color: var(--chrome); line-height: 1.7; font-size: 16px; }
+
+/* Scan-line overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none; z-index: 9990;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none; z-index: 9989;
+}
+
+.wrapper { max-width: 920px; margin: 0 auto; padding: 0 28px; }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  background: var(--deep);
+  padding: 80px 0 64px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--edge2);
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.12), transparent 55%),
+    radial-gradient(ellipse at 10% 80%, rgba(157,78,221,0.08), transparent 50%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+.hero-corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  border-color: var(--plasma);
+  border-style: solid;
+  opacity: 0.5;
+}
+.hero-corner.tl { top: 20px; left: 20px; border-width: 1px 0 0 1px; }
+.hero-corner.tr { top: 20px; right: 20px; border-width: 1px 1px 0 0; }
+.hero-corner.bl { bottom: 20px; left: 20px; border-width: 0 0 1px 1px; }
+.hero-corner.br { bottom: 20px; right: 20px; border-width: 0 1px 1px 0; }
+
+.hero-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-hud); font-size: 0.62rem; letter-spacing: 3px;
+  color: var(--plasma); text-transform: uppercase;
+  margin-bottom: 20px;
+  padding: 5px 14px; border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 2px; background: rgba(0,212,255,0.05);
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--plasma); animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.hero h1 {
+  font-family: var(--font-hud);
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1.15;
+  max-width: 680px;
+  margin-bottom: 16px;
+  color: var(--white);
+  text-shadow: 0 0 40px rgba(0,212,255,0.2);
+  text-transform: uppercase;
+}
+.hero h1 span { color: var(--plasma); }
+
+.hero p { font-size: 0.95rem; color: var(--steel); max-width: 560px; line-height: 1.75; font-weight: 300; }
+
+.hero-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 28px; }
+.hero-tag {
+  font-family: var(--font-code); font-size: 0.72rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--edge2);
+  border-radius: 2px;
+  padding: 3px 10px;
+  color: var(--steel);
+  transition: all 0.2s;
+}
+.hero-tag:hover { border-color: var(--plasma); color: var(--plasma); background: var(--plasma-bg); }
+
+/* ─── TOC ─── */
+.toc {
+  border: 1px solid var(--edge2);
+  border-radius: 4px;
+  padding: 28px 32px;
+  margin: 40px 0;
+  background: var(--panel);
+  position: relative;
+}
+.toc::before {
+  content: 'NAVIGATION_INDEX';
+  position: absolute; top: -1px; left: 20px;
+  font-family: var(--font-hud); font-size: 0.58rem; letter-spacing: 2px;
+  color: var(--plasma); background: var(--panel);
+  padding: 0 8px; transform: translateY(-50%);
+}
+.toc-title {
+  font-family: var(--font-hud); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--steel); margin-bottom: 16px;
+}
+.toc-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+@media(max-width:600px){ .toc-list { grid-template-columns: 1fr; } }
+.toc-list a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 2px;
+  text-decoration: none; font-size: 0.86rem; font-weight: 400;
+  color: var(--steel); transition: all 0.15s;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+}
+.toc-list a:hover { background: var(--plasma-bg); color: var(--plasma); border-color: rgba(0,212,255,0.2); }
+.toc-num {
+  font-family: var(--font-code); font-size: 0.7rem;
+  background: var(--edge); border-radius: 2px;
+  padding: 1px 7px; color: var(--plasma); flex-shrink: 0;
+  border: 1px solid var(--edge2);
+}
+
+/* ─── PROJECT SECTION ─── */
+.project-section { margin: 72px 0 0; }
+
+.project-header {
+  border-radius: 4px;
+  padding: 36px 40px;
+  margin-bottom: 36px;
+  position: relative; overflow: hidden;
+  border: 1px solid var(--edge2);
+  background: var(--panel);
+}
+.project-header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--plasma), transparent);
+}
+.project-header::after {
+  content: '';
+  position: absolute; right: -30px; top: -30px;
+  width: 200px; height: 200px; border-radius: 50%;
+  opacity: 0.04; background: var(--plasma);
+}
+
+.project-header.p1 { border-top-color: var(--plasma); }
+.project-header.p1::before { background: linear-gradient(90deg, transparent, var(--plasma), transparent); }
+.project-header.p2 { border-top-color: var(--violet); }
+.project-header.p2::before { background: linear-gradient(90deg, transparent, var(--violet), transparent); }
+.project-header.p3 { border-top-color: var(--amber); }
+.project-header.p3::before { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.project-header.p4 { border-top-color: var(--toxic); }
+.project-header.p4::before { background: linear-gradient(90deg, transparent, var(--toxic), transparent); }
+.project-header.p5 { border-top-color: var(--danger); }
+.project-header.p5::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
+.project-header.pmindset { border-top-color: var(--chrome); }
+.project-header.pmindset::before { background: linear-gradient(90deg, transparent, var(--chrome), transparent); }
+
+.project-num {
+  font-family: var(--font-hud); font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 12px; color: var(--steel);
+}
+.project-header h2 {
+  font-family: var(--font-hud);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 700; letter-spacing: 1px;
+  line-height: 1.25; margin-bottom: 12px;
+  text-transform: uppercase; color: var(--white);
+}
+.project-header p { font-size: 0.9rem; color: var(--steel); max-width: 540px; font-weight: 300; }
+.stack-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.stack-pill {
+  font-family: var(--font-code); font-size: 0.7rem;
+  padding: 3px 10px; border-radius: 2px;
+  border: 1px solid var(--edge2);
+  background: rgba(255,255,255,0.03);
+  color: var(--steel);
+}
+
+/* ─── CONTENT BLOCKS ─── */
+.content-block { margin-bottom: 40px; }
+
+.block-title {
+  font-family: var(--font-hud);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--chrome);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.block-title::before {
+  content: '';
+  display: block; width: 3px; height: 16px;
+  background: linear-gradient(180deg, var(--plasma), var(--violet));
+  border-radius: 1px; flex-shrink: 0;
+}
+
+p { color: var(--steel); line-height: 1.8; margin-bottom: 14px; font-size: 0.93rem; font-weight: 300; }
+strong { color: var(--chrome); font-weight: 600; }
+em { color: var(--plasma); font-style: italic; }
+
+/* ─── INLINE CODE ─── */
+:not(.code-wrap) code {
+  font-family: var(--font-code); font-size: 0.83rem;
+  background: var(--panel2); color: var(--plasma);
+  padding: 1px 7px; border-radius: 2px;
+  border: 1px solid var(--edge2);
+}
+
+/* ─── CODE BLOCKS ─── */
+.code-wrap {
+  background: var(--deep);
+  border-radius: 4px; overflow: hidden;
+  margin: 20px 0;
+  border: 1px solid var(--edge2);
+  position: relative;
+}
+.code-wrap::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--plasma-dim), transparent);
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--edge);
+}
+.code-lang {
+  font-family: var(--font-hud); font-size: 0.6rem;
+  color: var(--plasma); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+}
+.code-file {
+  font-family: var(--font-code); font-size: 0.7rem;
+  color: var(--steel);
+}
+
+pre { padding: 22px 20px; overflow-x: auto; line-height: 1.7; }
+
+code { font-family: var(--font-code); font-size: 0.82rem; color: var(--chrome); }
+
+/* Syntax highlighting — sci-fi palette */
+.code-wrap code .kw  { color: #56B4E9; }     /* keywords — ice blue */
+.code-wrap code .fn  { color: var(--toxic); }/* functions — toxic green */
+.code-wrap code .str { color: #FFA07A; }     /* strings — warm coral */
+.code-wrap code .num { color: var(--amber); }/* numbers — amber */
+.code-wrap code .imp { color: var(--plasma); }/* decorators — plasma */
+.code-wrap code .dec { color: #CE93D8; }     /* classes — soft violet */
+
+/* ─── CALLOUT BOXES ─── */
+.callout {
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  border-left: 3px solid;
+  position: relative;
+  font-weight: 300;
+}
+.callout::before {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  border-radius: 3px;
+  pointer-events: none;
+}
+.callout-concept {
+  background: var(--plasma-bg);
+  border-color: var(--plasma);
+  color: #9ECFE8;
+}
+.callout-tip {
+  background: var(--toxic-bg);
+  border-color: var(--toxic);
+  color: #9EDAAA;
+}
+.callout-warn {
+  background: var(--amber-bg);
+  border-color: var(--amber);
+  color: #D4B870;
+}
+.callout-why {
+  background: var(--violet-bg);
+  border-color: var(--violet);
+  color: #C4A8E8;
+}
+.callout strong { color: inherit; font-weight: 600; }
+
+/* ─── CONCEPT TABLE ─── */
+.concept-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.86rem; }
+.concept-table th {
+  background: var(--panel);
+  color: var(--plasma);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--font-hud);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--edge2);
+}
+.concept-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--edge);
+  vertical-align: top;
+  color: var(--steel);
+  font-weight: 300;
+}
+.concept-table tr:hover td { background: var(--plasma-bg); }
+.concept-table td code { font-size: 0.78rem; }
+
+/* ─── STEP LIST ─── */
+.steps { list-style: none; counter-reset: steps; }
+.steps li {
+  counter-increment: steps;
+  display: flex; gap: 18px;
+  margin-bottom: 24px; position: relative;
+}
+.steps li::before {
+  content: counter(steps, decimal-leading-zero);
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--plasma);
+  color: var(--plasma);
+  font-family: var(--font-code); font-size: 0.75rem; font-weight: 700;
+  flex-shrink: 0; margin-top: 2px;
+  background: var(--plasma-bg);
+  border-radius: 2px;
+}
+.step-title { font-weight: 600; font-size: 0.93rem; margin-bottom: 4px; color: var(--chrome); }
+.step-desc { font-size: 0.87rem; color: var(--steel); line-height: 1.6; font-weight: 300; }
+
+/* ─── BULLET LIST ─── */
+ul.learn-list { list-style: none; padding: 0; margin: 14px 0; }
+ul.learn-list li {
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-size: 0.9rem; color: var(--steel);
+  border-bottom: 1px solid var(--edge);
+  font-weight: 300;
+}
+ul.learn-list li:last-child { border: none; }
+ul.learn-list li::before {
+  content: '›';
+  position: absolute; left: 4px;
+  color: var(--plasma); font-weight: 700; font-size: 1.1rem;
+}
+
+/* ─── DIVIDER ─── */
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--edge2) 20%, var(--edge2) 80%, transparent);
+  margin: 64px 0;
+  position: relative;
+}
+.divider::after {
+  content: '◆';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--edge2); font-size: 0.7rem;
+  background: var(--void); padding: 0 8px;
+}
+
+/* ─── SKILLS LEARNED ─── */
+.skills-learned {
+  background: var(--panel);
+  border: 1px solid var(--edge2);
+  border-left: 3px solid var(--toxic);
+  border-radius: 3px;
+  padding: 20px 24px;
+  margin-top: 32px;
+  position: relative;
+}
+.skills-learned::before {
+  content: 'SKILLS_ACQUIRED';
+  position: absolute; top: -1px; left: 16px;
+  font-family: var(--font-hud); font-size: 0.55rem; letter-spacing: 2px;
+  color: var(--toxic); background: var(--panel);
+  padding: 0 6px; transform: translateY(-50%);
+}
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.skill-tag {
+  font-family: var(--font-code); font-size: 0.75rem;
+  background: rgba(57,255,20,0.06);
+  color: var(--toxic);
+  border: 1px solid rgba(57,255,20,0.25);
+  border-radius: 2px;
+  padding: 3px 10px;
+}
+
+/* ─── ARCHITECTURE BOX ─── */
+.arch-box {
+  background: var(--panel);
+  border: 1px solid var(--edge2);
+  border-radius: 4px;
+  padding: 24px;
+  margin: 20px 0;
+  position: relative;
+}
+.arch-box::before {
+  content: 'SYSTEM_ARCHITECTURE';
+  position: absolute; top: -1px; left: 16px;
+  font-family: var(--font-hud); font-size: 0.55rem; letter-spacing: 2px;
+  color: var(--steel); background: var(--panel);
+  padding: 0 6px; transform: translateY(-50%);
+}
+.arch-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.arch-row:last-child { margin: 0; }
+.arch-node {
+  font-family: var(--font-code); font-size: 0.73rem; font-weight: 700;
+  padding: 5px 12px; border-radius: 2px;
+  border: 1px solid var(--edge2);
+  background: var(--panel2);
+  color: var(--chrome); white-space: nowrap;
+}
+.arch-node.blue  { border-color: var(--plasma);  color: var(--plasma);  background: var(--plasma-bg); }
+.arch-node.green { border-color: var(--toxic);   color: var(--toxic);   background: var(--toxic-bg); }
+.arch-node.purple{ border-color: var(--violet);  color: var(--violet);  background: var(--violet-bg); }
+.arch-node.orange{ border-color: var(--amber);   color: var(--amber);   background: var(--amber-bg); }
+.arch-node.red   { border-color: var(--danger);  color: var(--danger);  background: var(--danger-bg); }
+.arch-arrow { color: var(--plasma); font-size: 1rem; font-weight: 700; font-family: var(--font-code); }
+.arch-label { font-size: 0.72rem; color: var(--steel); font-style: italic; font-family: var(--font-code); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--deep);
+  border-top: 1px solid var(--edge2);
+  padding: 56px 0;
+  margin-top: 80px;
+  text-align: center;
+  position: relative;
+}
+footer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--plasma-dim), var(--violet), transparent);
+}
+footer h3 {
+  font-family: var(--font-hud); color: var(--white);
+  font-size: 1rem; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+footer p { font-size: 0.85rem; color: var(--steel); margin-bottom: 6px; font-weight: 300; }
+footer a { color: var(--plasma); text-decoration: none; }
+footer a:hover { text-shadow: var(--glow-plasma); }
+.footer-line {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 24px;
+}
+.footer-sep { color: var(--edge2); }
+
+/* ─── SCAN ANIMATION on load ─── */
+@keyframes scanIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero .wrapper > * {
+  animation: scanIn 0.5s ease both;
+}
+.hero .wrapper > *:nth-child(1){ animation-delay: 0.05s }
+.hero .wrapper > *:nth-child(2){ animation-delay: 0.15s }
+.hero .wrapper > *:nth-child(3){ animation-delay: 0.25s }
+.hero .wrapper > *:nth-child(4){ animation-delay: 0.35s }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--edge2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--plasma-dim); }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px) {
+  .project-header { padding: 24px 20px; }
+  .toc { padding: 20px; }
+  pre { font-size: 0.74rem; }
+  .hero h1 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor elements -->
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-cross-h"></div>
+<div id="cursor-cross-v"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div>
+  <div class="hero-corner br"></div>
+  <div class="wrapper">
+    <div class="hero-status"><span class="status-dot"></span>SYSTEM ONLINE · LEARNING MODULE ACTIVE</div>
+    <h1>HOW I BUILT <span>5 PORTFOLIO</span> PROJECTS FROM SCRATCH</h1>
+    <p>A complete technical walkthrough — every tech choice explained, every concept taught, every piece of architecture broken down. Written the way I wish someone had explained it to me.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">Python</span><span class="hero-tag">Streamlit</span>
+      <span class="hero-tag">FastAPI</span><span class="hero-tag">React</span>
+      <span class="hero-tag">scikit-learn</span><span class="hero-tag">Hugging Face</span>
+      <span class="hero-tag">SQLite</span><span class="hero-tag">Plotly</span>
+      <span class="hero-tag">Machine Learning</span><span class="hero-tag">Full Stack</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrapper">
+
+<!-- TOC -->
+<div class="toc">
+  <p class="toc-title">// NAVIGATION INDEX</p>
+  <ul class="toc-list">
+    <li><a href="#p1"><span class="toc-num">01</span> Stock &amp; Crypto Dashboard</a></li>
+    <li><a href="#p2"><span class="toc-num">02</span> Anomaly Detector</a></li>
+    <li><a href="#p3"><span class="toc-num">03</span> CSV Analytics Dashboard</a></li>
+    <li><a href="#p4"><span class="toc-num">04</span> AI Text Classifier API</a></li>
+    <li><a href="#p5"><span class="toc-num">05</span> Full Stack Task Manager</a></li>
+    <li><a href="#mindset"><span class="toc-num">★</span> How to Think When Building</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ PROJECT 1 -->
+<div class="project-section" id="p1">
+  <div class="project-header p1">
+    <p class="project-num">// PROJECT_01</p>
+    <h2>📊 Real-Time Stock &amp; Crypto Dashboard</h2>
+    <p>A financial analytics app that pulls live market data, computes risk metrics, and renders interactive candlestick charts with technical indicators.</p>
+    <div class="stack-pills">
+      <span class="stack-pill">Python</span><span class="stack-pill">Streamlit</span>
+      <span class="stack-pill">yfinance</span><span class="stack-pill">Plotly</span>
+      <span class="stack-pill">pandas</span><span class="stack-pill">numpy</span><span class="stack-pill">scipy</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">What is Streamlit and why did I use it?</h3>
+    <p>Streamlit is a Python framework that turns a plain <code>.py</code> script into a full web app — with UI widgets, charts, file uploaders — <strong>without writing any HTML, CSS, or JavaScript</strong>. You write Python top-to-bottom and Streamlit re-runs the whole script every time the user changes something.</p>
+    <div class="callout callout-concept">
+      <strong>The mental model:</strong> Think of a Streamlit app as a Python script that auto-reruns from the top whenever any widget changes. That's literally all it is. Every <code>st.slider()</code>, <code>st.selectbox()</code>, or <code>st.button()</code> returns a value you use in normal Python code.
+    </div>
+    <p>I used Streamlit here instead of React/FastAPI because <strong>for data apps, the whole point is the data and charts, not the UI</strong>. Streamlit gets you to a deployable live demo in 30 minutes. That's perfect for a freelance portfolio piece.</p>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">What is yfinance and how does data flow in?</h3>
+    <p><code>yfinance</code> is a Python library that wraps Yahoo Finance's API. You give it a ticker symbol and a period, and it gives you back a pandas DataFrame with OHLCV data (Open, High, Low, Close, Volume).</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">data_loading.py</span></div>
+      <pre><code><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+stock = yf.Ticker(<span class="str">"AAPL"</span>)
+
+df = stock.history(period=<span class="str">"3mo"</span>)
+
+<span class="fn">print</span>(df.head())
+
+info = stock.info
+<span class="fn">print</span>(info[<span class="str">'longName'</span>])
+<span class="fn">print</span>(info[<span class="str">'marketCap'</span>])
+<span class="fn">print</span>(info[<span class="str">'sector'</span>])</code></pre>
+    </div>
+    <div class="callout callout-tip">
+      <strong>Why cache it?</strong> yfinance makes a real HTTP request to Yahoo's servers every call. Calling it on every Streamlit rerun would be slow and could get rate-limited. We use <code>@st.cache_data(ttl=300)</code> to cache the result for 5 minutes — so the same ticker only fetches once per 5 minutes no matter how many times the user interacts with the app.
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">caching_pattern.py</span></div>
+      <pre><code><span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+<span class="imp">@st.cache_data</span>(ttl=<span class="num">300</span>)
+<span class="kw">def</span> <span class="fn">load_data</span>(ticker, period):
+    stock = yf.Ticker(ticker)
+    df = stock.history(period=period)
+    info = stock.info
+    <span class="kw">return</span> df, info
+
+df, info = load_data(<span class="str">"AAPL"</span>, <span class="str">"3mo"</span>)</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Computing financial metrics from scratch</h3>
+    <p>This is where pandas and numpy do the heavy lifting. Every metric is just math on the <code>df['Close']</code> column.</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">metrics.py</span></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+daily_returns = df[<span class="str">'Close'</span>].pct_change()
+
+volatility = daily_returns.std() * np.sqrt(<span class="num">252</span>) * <span class="num">100</span>
+
+risk_free_rate = <span class="num">0.04</span>
+sharpe = (daily_returns.mean() * <span class="num">252</span> - risk_free_rate) / \
+         (daily_returns.std() * np.sqrt(<span class="num">252</span>))
+
+rolling_max = df[<span class="str">'Close'</span>].cummax()
+drawdown = (df[<span class="str">'Close'</span>] - rolling_max) / rolling_max
+max_drawdown = drawdown.min() * <span class="num">100</span>
+
+delta = df[<span class="str">'Close'</span>].diff()
+gain = delta.clip(lower=<span class="num">0</span>).rolling(<span class="num">14</span>).mean()
+loss = (-delta.clip(upper=<span class="num">0</span>)).rolling(<span class="num">14</span>).mean()
+rs = gain / loss
+rsi = <span class="num">100</span> - (<span class="num">100</span> / (<span class="num">1</span> + rs))</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Building charts with Plotly</h3>
+    <p>Plotly is a charting library that creates interactive charts — hover, zoom, pan — all in the browser. The key object is <code>go.Figure()</code>. You build a figure by <strong>adding traces</strong> (each trace is one data series).</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">charts.py</span></div>
+      <pre><code><span class="kw">import</span> plotly.graph_objects <span class="kw">as</span> go
+<span class="kw">from</span> plotly.subplots <span class="kw">import</span> make_subplots
+
+fig = make_subplots(
+    rows=<span class="num">2</span>, cols=<span class="num">1</span>,
+    shared_xaxes=<span class="kw">True</span>,
+    row_heights=[<span class="num">0.7</span>, <span class="num">0.3</span>],
+    vertical_spacing=<span class="num">0.03</span>
+)
+
+fig.add_trace(go.Candlestick(
+    x=df.index,
+    open=df[<span class="str">'Open'</span>],
+    high=df[<span class="str">'High'</span>],
+    low=df[<span class="str">'Low'</span>],
+    close=df[<span class="str">'Close'</span>],
+    name=<span class="str">"Price"</span>,
+    increasing_line_color=<span class="str">'#00D9A3'</span>,
+    decreasing_line_color=<span class="str">'#FF5C7A'</span>,
+), row=<span class="num">1</span>, col=<span class="num">1</span>)
+
+ma20 = df[<span class="str">'Close'</span>].rolling(<span class="num">20</span>).mean()
+fig.add_trace(go.Scatter(
+    x=df.index, y=ma20,
+    name=<span class="str">'MA20'</span>,
+    line=<span class="fn">dict</span>(color=<span class="str">'#1A56DB'</span>, width=<span class="num">1.5</span>)
+), row=<span class="num">1</span>, col=<span class="num">1</span>)
+
+colors = [<span class="str">'#00D9A3'</span> <span class="kw">if</span> df[<span class="str">'Close'</span>].iloc[i] >= df[<span class="str">'Open'</span>].iloc[i]
+          <span class="kw">else</span> <span class="str">'#FF5C7A'</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(df))]
+fig.add_trace(go.Bar(
+    x=df.index, y=df[<span class="str">'Volume'</span>],
+    marker_color=colors, opacity=<span class="num">0.7</span>
+), row=<span class="num">2</span>, col=<span class="num">1</span>)
+
+fig.update_layout(
+    template=<span class="str">'plotly_dark'</span>,
+    height=<span class="num">600</span>,
+    xaxis_rangeslider_visible=<span class="kw">False</span>,
+    hovermode=<span class="str">'x unified'</span>,
+)
+
+st.plotly_chart(fig, use_container_width=<span class="kw">True</span>)</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Architecture of this project</h3>
+    <div class="arch-box">
+      <div class="arch-row">
+        <span class="arch-node blue">User (Browser)</span>
+        <span class="arch-arrow">↔</span>
+        <span class="arch-node">Streamlit Server</span>
+        <span class="arch-arrow">↔</span>
+        <span class="arch-node green">app.py (Python)</span>
+      </div>
+      <div class="arch-row" style="padding-left:180px">
+        <span class="arch-arrow">↓ on first load / cache miss</span>
+      </div>
+      <div class="arch-row" style="padding-left:180px">
+        <span class="arch-node purple">yfinance</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-node orange">Yahoo Finance API</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-label">returns OHLCV DataFrame</span>
+      </div>
+      <div class="arch-row" style="padding-left:180px"><span class="arch-arrow">↓</span></div>
+      <div class="arch-row" style="padding-left:180px">
+        <span class="arch-node">pandas / numpy</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-label">compute metrics, RSI, drawdown, volatility</span>
+      </div>
+      <div class="arch-row" style="padding-left:180px"><span class="arch-arrow">↓</span></div>
+      <div class="arch-row" style="padding-left:180px">
+        <span class="arch-node green">Plotly</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-label">renders interactive charts in browser</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-learned">
+    <div class="skill-tags">
+      <span class="skill-tag">st.cache_data</span><span class="skill-tag">pandas pct_change()</span>
+      <span class="skill-tag">rolling().mean()</span><span class="skill-tag">cummax()</span>
+      <span class="skill-tag">Sharpe ratio maths</span><span class="skill-tag">RSI formula</span>
+      <span class="skill-tag">go.Candlestick()</span><span class="skill-tag">make_subplots()</span>
+      <span class="skill-tag">API caching patterns</span><span class="skill-tag">Streamlit deploy</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ═══════════════════════════════════════════════════ PROJECT 2 -->
+<div class="project-section" id="p2">
+  <div class="project-header p2">
+    <p class="project-num">// PROJECT_02</p>
+    <h2>🔍 Anomaly Detector</h2>
+    <p>Upload any CSV, apply Isolation Forest ML to detect outliers, visualise in 2D PCA space, and export results — all without labels or training data.</p>
+    <div class="stack-pills">
+      <span class="stack-pill">Python</span><span class="stack-pill">Streamlit</span>
+      <span class="stack-pill">scikit-learn</span><span class="stack-pill">Isolation Forest</span>
+      <span class="stack-pill">PCA</span><span class="stack-pill">StandardScaler</span><span class="stack-pill">Plotly</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">How Isolation Forest works — the core idea</h3>
+    <p>Most anomaly detection asks "is this point far from the cluster?" Isolation Forest asks something cleverer: <strong>"how easy is it to isolate this point?"</strong></p>
+    <p>Imagine a forest of random decision trees. Each tree randomly picks a feature and a split value, over and over, until each data point is in its own leaf. <strong>Anomalies get isolated in very few splits</strong>. Normal points buried inside a dense cluster take many splits to isolate.</p>
+    <div class="callout callout-concept">
+      <strong>Intuition:</strong> If I asked you to find a needle in a haystack vs. a haystack in a haystack — the needle gets found (isolated) very quickly. Anomalies = needles. Normal points = haystacks.
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">isolation_forest.py</span></div>
+      <pre><code><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> IsolationForest
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df[numeric_cols])
+
+model = IsolationForest(
+    n_estimators=<span class="num">100</span>,
+    contamination=<span class="num">0.05</span>,
+    max_features=<span class="num">0.8</span>,
+    random_state=<span class="num">42</span>
+)
+model.fit(X_scaled)
+
+labels = model.predict(X_scaled)
+scores = model.score_samples(X_scaled)
+
+df[<span class="str">'is_anomaly'</span>] = labels == <span class="num">-1</span>
+df[<span class="str">'anomaly_score'</span>] = scores
+
+n_anomalies = (labels == <span class="num">-1</span>).sum()
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">f"Found {n_anomalies} anomalies out of {len(labels)} rows"</span>)</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">PCA — Visualising high-dimensional data in 2D</h3>
+    <p>Your data might have 10 features. You can't plot 10 dimensions. PCA (Principal Component Analysis) finds the 2 directions in your data that capture the most variation, and projects everything onto those 2 axes.</p>
+    <div class="callout callout-concept">
+      <strong>Think of it like a shadow:</strong> If you have a 3D sculpture and shine a light at the perfect angle, the shadow captures most of the sculpture's shape in 2D. PCA finds that "perfect angle" mathematically.
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">pca_visualisation.py</span></div>
+      <pre><code><span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">import</span> plotly.graph_objects <span class="kw">as</span> go
+
+pca = PCA(n_components=<span class="num">2</span>)
+X_2d = pca.fit_transform(X_scaled)
+
+var = pca.explained_variance_ratio_
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">f"PC1 explains {var[0]*100:.1f}% of variance"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">f"PC2 explains {var[1]*100:.1f}% of variance"</span>)
+
+fig = go.Figure()
+
+normal_mask = ~df[<span class="str">'is_anomaly'</span>]
+fig.add_trace(go.Scatter(
+    x=X_2d[normal_mask, <span class="num">0</span>],
+    y=X_2d[normal_mask, <span class="num">1</span>],
+    mode=<span class="str">'markers'</span>, name=<span class="str">'Normal'</span>,
+    marker=<span class="fn">dict</span>(color=<span class="str">'#1A56DB'</span>, size=<span class="num">5</span>, opacity=<span class="num">0.6</span>)
+))
+
+anom_mask = df[<span class="str">'is_anomaly'</span>]
+fig.add_trace(go.Scatter(
+    x=X_2d[anom_mask, <span class="num">0</span>],
+    y=X_2d[anom_mask, <span class="num">1</span>],
+    mode=<span class="str">'markers'</span>, name=<span class="str">'Anomaly'</span>,
+    marker=<span class="fn">dict</span>(color=<span class="str">'#FF3B5C'</span>, size=<span class="num">10</span>, symbol=<span class="str">'x'</span>)
+))</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Why StandardScaler matters — a concrete example</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">scaler_example.py</span></div>
+      <pre><code><span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)</code></pre>
+    </div>
+    <p>Without scaling, a salary feature (values in the millions) completely drowns out an age feature (values 0–100). The model barely sees age. After <code>StandardScaler</code>, every column has mean=0 and std=1 — equal footing. <strong>Always scale before any distance-based ML</strong>: KNN, SVM, PCA, Isolation Forest, K-Means.</p>
+  </div>
+
+  <div class="skills-learned">
+    <div class="skill-tags">
+      <span class="skill-tag">Isolation Forest</span><span class="skill-tag">StandardScaler</span>
+      <span class="skill-tag">PCA dimensionality reduction</span><span class="skill-tag">contamination param</span>
+      <span class="skill-tag">score_samples()</span><span class="skill-tag">unsupervised ML</span>
+      <span class="skill-tag">st.file_uploader()</span><span class="skill-tag">st.download_button()</span>
+      <span class="skill-tag">feature contribution analysis</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ═══════════════════════════════════════════════════ PROJECT 3 -->
+<div class="project-section" id="p3">
+  <div class="project-header p3">
+    <p class="project-num">// PROJECT_03</p>
+    <h2>🗃️ CSV Analytics (DataLens) Dashboard</h2>
+    <p>Auto-EDA tool: upload any CSV and get distribution plots, correlation heatmap, scatter explorer with trendlines, time series, and Excel export.</p>
+    <div class="stack-pills">
+      <span class="stack-pill">Python</span><span class="stack-pill">Streamlit</span>
+      <span class="stack-pill">pandas</span><span class="stack-pill">plotly</span>
+      <span class="stack-pill">scipy.stats</span><span class="stack-pill">openpyxl</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">EDA — what it is and why every project starts here</h3>
+    <p>EDA (Exploratory Data Analysis) means: <strong>look at your data before you model it</strong>. You check distributions, find skewed features, spot missing values, understand correlations, identify outliers. If you skip EDA, you build models on wrong assumptions.</p>
+    <p>This project automates EDA. The skill you're building is: <em>given an unknown dataset, what questions do you ask first?</em></p>
+    <table class="concept-table">
+      <tr><th>EDA Check</th><th>What you look for</th><th>pandas code</th></tr>
+      <tr><td>Missing values</td><td>Which columns have nulls? How many %?</td><td><code>df.isnull().sum() / len(df) * 100</code></td></tr>
+      <tr><td>Data types</td><td>Are numbers stored as strings? Dates as objects?</td><td><code>df.dtypes</code></td></tr>
+      <tr><td>Duplicates</td><td>Are there repeated rows?</td><td><code>df.duplicated().sum()</code></td></tr>
+      <tr><td>Distribution</td><td>Normal? Skewed? Bimodal?</td><td><code>df.describe()</code> + histogram</td></tr>
+      <tr><td>Skewness</td><td>Heavy tail? Need log transform?</td><td><code>df.skew()</code></td></tr>
+      <tr><td>Correlation</td><td>Which features move together?</td><td><code>df.corr()</code></td></tr>
+      <tr><td>Cardinality</td><td>How many unique values in categorical cols?</td><td><code>df.nunique()</code></td></tr>
+    </table>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Correlation heatmap — reading and building it</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">correlation.py</span></div>
+      <pre><code>corr = df[numeric_cols].corr()
+
+<span class="kw">import</span> plotly.graph_objects <span class="kw">as</span> go
+
+fig = go.Figure(go.Heatmap(
+    z=corr.values,
+    x=corr.columns,
+    y=corr.index,
+    colorscale=[[<span class="num">0</span>, <span class="str">'#DC2626'</span>], [<span class="num">0.5</span>, <span class="str">'#FFFFFF'</span>], [<span class="num">1</span>, <span class="str">'#1D4ED8'</span>]],
+    zmid=<span class="num">0</span>, zmin=<span class="num">-1</span>, zmax=<span class="num">1</span>,
+    text=corr.values.round(<span class="num">2</span>),
+    texttemplate=<span class="str">"%{text}"</span>,
+))
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(corr.columns)):
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i+<span class="num">1</span>, <span class="fn">len</span>(corr.columns)):
+        val = corr.iloc[i, j]
+        <span class="kw">if</span> <span class="fn">abs</span>(val) >= <span class="num">0.5</span>:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="str">f"{corr.columns[i]} ↔ {corr.columns[j]}: {val:.2f}"</span>)</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">KDE — making distributions look beautiful</h3>
+    <p>A histogram is blocky. KDE (Kernel Density Estimation) is a smooth curve that estimates the true underlying distribution. You use <code>scipy.stats.gaussian_kde</code>.</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">kde.py</span></div>
+      <pre><code><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = df[<span class="str">'revenue'</span>].dropna()
+
+hist_vals, bin_edges = np.histogram(data, bins=<span class="num">30</span>)
+bin_centers = (bin_edges[:-<span class="num">1</span>] + bin_edges[<span class="num">1</span>:]) / <span class="num">2</span>
+
+kde = stats.gaussian_kde(data)
+
+x_range = np.linspace(data.min(), data.max(), <span class="num">200</span>)
+kde_y = kde(x_range)
+
+bin_width = bin_edges[<span class="num">1</span>] - bin_edges[<span class="num">0</span>]
+kde_y_scaled = kde_y * <span class="fn">len</span>(data) * bin_width
+
+fig.add_trace(go.Bar(x=bin_centers, y=hist_vals, name=<span class="str">'Histogram'</span>))
+fig.add_trace(go.Scatter(x=x_range, y=kde_y_scaled,
+    mode=<span class="str">'lines'</span>, line=<span class="fn">dict</span>(color=<span class="str">'#DC2626'</span>, width=<span class="num">2</span>), name=<span class="str">'KDE'</span>))</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Exporting to Excel with openpyxl</h3>
+    <p>A key freelance skill — clients always want Excel. <code>openpyxl</code> is the engine pandas uses to write <code>.xlsx</code> files with multiple sheets.</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">excel_export.py</span></div>
+      <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> io
+
+buffer = io.BytesIO()
+
+<span class="kw">with</span> pd.ExcelWriter(buffer, engine=<span class="str">'openpyxl'</span>) <span class="kw">as</span> writer:
+    df.to_excel(writer, sheet_name=<span class="str">'Data'</span>, index=<span class="kw">False</span>)
+    df[numeric_cols].describe().T.to_excel(writer, sheet_name=<span class="str">'Stats'</span>)
+    df[numeric_cols].corr().to_excel(writer, sheet_name=<span class="str">'Correlation'</span>)
+
+st.download_button(
+    label=<span class="str">"📊 Download Excel Report"</span>,
+    data=buffer.getvalue(),
+    file_name=<span class="str">"eda_report.xlsx"</span>,
+    mime=<span class="str">"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"</span>
+)</code></pre>
+    </div>
+  </div>
+
+  <div class="skills-learned">
+    <div class="skill-tags">
+      <span class="skill-tag">df.describe()</span><span class="skill-tag">df.corr()</span>
+      <span class="skill-tag">df.skew()</span><span class="skill-tag">df.isnull()</span>
+      <span class="skill-tag">KDE with scipy</span><span class="skill-tag">Heatmap in Plotly</span>
+      <span class="skill-tag">scipy linregress trendline</span><span class="skill-tag">openpyxl export</span>
+      <span class="skill-tag">io.BytesIO() pattern</span><span class="skill-tag">multi-sheet Excel</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ═══════════════════════════════════════════════════ PROJECT 4 -->
+<div class="project-section" id="p4">
+  <div class="project-header p4">
+    <p class="project-num">// PROJECT_04</p>
+    <h2>🤖 AI Text Classifier API</h2>
+    <p>A production REST API that classifies text into any custom labels using zero-shot AI, with batch endpoints, sentiment analysis, caching, and auto-generated docs.</p>
+    <div class="stack-pills">
+      <span class="stack-pill">Python</span><span class="stack-pill">FastAPI</span>
+      <span class="stack-pill">Hugging Face Transformers</span><span class="stack-pill">BERT / BART</span>
+      <span class="stack-pill">Pydantic</span><span class="stack-pill">uvicorn</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">FastAPI vs Flask vs Django — when to use what</h3>
+    <table class="concept-table">
+      <tr><th>Framework</th><th>Best For</th><th>Key Feature</th><th>Speed</th></tr>
+      <tr><td><strong>FastAPI</strong></td><td>APIs, ML inference, microservices</td><td>Auto docs, Pydantic validation, async</td><td>⚡ Very fast</td></tr>
+      <tr><td><strong>Flask</strong></td><td>Small APIs, prototypes</td><td>Minimal, easy to learn</td><td>Fast</td></tr>
+      <tr><td><strong>Django</strong></td><td>Full web apps with admin, ORM, auth</td><td>Batteries included</td><td>Moderate</td></tr>
+    </table>
+    <p>I chose FastAPI because: <strong>1)</strong> Pydantic validation is built-in, <strong>2)</strong> Swagger docs auto-generate from your type hints, <strong>3)</strong> it's the industry standard for ML serving.</p>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Building a FastAPI endpoint — the anatomy</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">fastapi_basics.py</span></div>
+      <pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, HTTPException
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">from</span> typing <span class="kw">import</span> List, Optional
+
+app = FastAPI(title=<span class="str">"My API"</span>)
+
+<span class="kw">class</span> <span class="dec">ClassifyRequest</span>(BaseModel):
+    text: str = Field(
+        ...,
+        min_length=<span class="num">3</span>,
+        max_length=<span class="num">5000</span>,
+        example=<span class="str">"Apple stock hit a new all-time high today."</span>
+    )
+    labels: List[str] = Field(
+        default=[<span class="str">"tech"</span>, <span class="str">"finance"</span>, <span class="str">"sports"</span>],
+        description=<span class="str">"Categories to classify into"</span>
+    )
+
+<span class="imp">@app.post</span>(<span class="str">"/classify"</span>)
+<span class="kw">async def</span> <span class="fn">classify</span>(req: ClassifyRequest):
+    <span class="kw">try</span>:
+        result = <span class="fn">run_model</span>(req.text, req.labels)
+        <span class="kw">return</span> result
+    <span class="kw">except</span> <span class="dec">Exception</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">500</span>, detail=<span class="fn">str</span>(e))</code></pre>
+    </div>
+    <div class="callout callout-tip">
+      <strong>The killer feature of FastAPI:</strong> Go to <code>/docs</code> and you get a full interactive API tester. Every endpoint, every parameter, every example — auto-generated from your Pydantic models and type hints. No manual documentation needed.
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Zero-shot classification — AI without training data</h3>
+    <p>Normal text classification: you train a model on thousands of labelled examples. Zero-shot: <strong>you just describe the categories in plain English</strong> and the model figures it out using its pre-trained language understanding.</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">zero_shot.py</span></div>
+      <pre><code><span class="kw">from</span> transformers <span class="kw">import</span> pipeline
+
+classifier = pipeline(
+    <span class="str">"zero-shot-classification"</span>,
+    model=<span class="str">"facebook/bart-large-mnli"</span>
+)
+
+result = classifier(
+    <span class="str">"The patient showed signs of high blood pressure and fatigue."</span>,
+    candidate_labels=[<span class="str">"medical"</span>, <span class="str">"sports"</span>, <span class="str">"technology"</span>, <span class="str">"finance"</span>]
+)
+<span class="fn">print</span>(result[<span class="str">'labels'</span>])
+<span class="fn">print</span>(result[<span class="str">'scores'</span>])
+
+result = classifier(
+    <span class="str">"AI is being used to detect cancer earlier and more accurately."</span>,
+    candidate_labels=[<span class="str">"healthcare"</span>, <span class="str">"AI"</span>, <span class="str">"technology"</span>, <span class="str">"finance"</span>],
+    multi_label=<span class="kw">True</span>
+)
+
+result = classifier(
+    <span class="str">"Congratulations! You've won a prize. Click here."</span>,
+    candidate_labels=[<span class="str">"spam"</span>, <span class="str">"legitimate"</span>],
+    hypothesis_template=<span class="str">"This email is a {} message."</span>
+)</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">Response caching — making the API fast</h3>
+    <p>ML models are slow (0.5–3 seconds per call). If someone sends the exact same text and labels twice, why run the model again? Cache the result.</p>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">caching.py</span></div>
+      <pre><code><span class="kw">import</span> hashlib
+
+_cache = {}
+
+<span class="kw">def</span> <span class="fn">cache_key</span>(text: str, labels: list, multi_label: bool) -> str:
+    data = <span class="fn">f</span><span class="str">f"{text}|{'|'.join(sorted(labels))}|{multi_label}"</span>
+    <span class="kw">return</span> hashlib.md5(data.encode()).hexdigest()
+
+<span class="kw">async def</span> <span class="fn">classify</span>(req: ClassifyRequest):
+    ck = <span class="fn">cache_key</span>(req.text, req.labels, req.multi_label)
+
+    <span class="kw">if</span> ck <span class="kw">in</span> _cache:
+        result = _cache[ck].copy()
+        result[<span class="str">"cached"</span>] = <span class="kw">True</span>
+        <span class="kw">return</span> result
+
+    result = <span class="fn">run_model</span>(req.text, req.labels, req.multi_label)
+    _cache[ck] = result
+    <span class="kw">return</span> result</code></pre>
+    </div>
+  </div>
+
+  <div class="skills-learned">
+    <div class="skill-tags">
+      <span class="skill-tag">FastAPI routing</span><span class="skill-tag">Pydantic v2 validation</span>
+      <span class="skill-tag">Field() constraints</span><span class="skill-tag">HTTPException handling</span>
+      <span class="skill-tag">HuggingFace pipeline()</span><span class="skill-tag">zero-shot classification</span>
+      <span class="skill-tag">MD5 cache keys</span><span class="skill-tag">async def</span>
+      <span class="skill-tag">Swagger auto-docs</span><span class="skill-tag">CORS middleware</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ═══════════════════════════════════════════════════ PROJECT 5 -->
+<div class="project-section" id="p5">
+  <div class="project-header p5">
+    <p class="project-num">// PROJECT_05</p>
+    <h2>🌐 Full Stack Task Manager (TaskForge)</h2>
+    <p>A complete project &amp; task management app — React frontend with Kanban board, FastAPI REST backend, SQLite database with foreign keys and auto-seeded demo data.</p>
+    <div class="stack-pills">
+      <span class="stack-pill">React</span><span class="stack-pill">Hooks</span>
+      <span class="stack-pill">FastAPI</span><span class="stack-pill">SQLite</span>
+      <span class="stack-pill">Pydantic</span><span class="stack-pill">CSS Variables</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">The full-stack mental model</h3>
+    <p>Full stack means your app has three distinct layers that each have one job:</p>
+    <div class="arch-box">
+      <div class="arch-row">
+        <span class="arch-node blue">Frontend (React)</span>
+        <span class="arch-label">← What the user sees and interacts with. Runs in the browser. Makes HTTP requests.</span>
+      </div>
+      <div class="arch-row" style="padding-left:20px;margin:4px 0"><span class="arch-arrow">↕ HTTP (JSON over REST API)</span></div>
+      <div class="arch-row">
+        <span class="arch-node green">Backend (FastAPI)</span>
+        <span class="arch-label">← Business logic, validation, authentication. Receives requests, queries DB, returns JSON.</span>
+      </div>
+      <div class="arch-row" style="padding-left:20px;margin:4px 0"><span class="arch-arrow">↕ SQL queries</span></div>
+      <div class="arch-row">
+        <span class="arch-node purple">Database (SQLite)</span>
+        <span class="arch-label">← Stores data permanently. Tables, relationships, indexes.</span>
+      </div>
+    </div>
+    <div class="callout callout-warn">
+      <strong>Common beginner mistake:</strong> mixing these layers. Business logic doesn't belong in the database. UI logic doesn't belong in the backend. Keep each layer focused on its single responsibility.
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">SQLite schema design — tables, foreign keys, indexes</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><span class="code-file">schema.sql</span></div>
+      <pre><code><span class="kw">CREATE TABLE IF NOT EXISTS</span> projects (
+    id          INTEGER <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+    name        TEXT <span class="kw">NOT NULL</span>,
+    description TEXT,
+    status      TEXT <span class="kw">DEFAULT</span> <span class="str">'active'</span>
+        <span class="kw">CHECK</span>(status <span class="kw">IN</span> (<span class="str">'active'</span>,<span class="str">'paused'</span>,<span class="str">'completed'</span>)),
+    priority    TEXT <span class="kw">DEFAULT</span> <span class="str">'medium'</span>
+        <span class="kw">CHECK</span>(priority <span class="kw">IN</span> (<span class="str">'low'</span>,<span class="str">'medium'</span>,<span class="str">'high'</span>,<span class="str">'critical'</span>)),
+    created_at  TEXT <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>))
+);
+
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> tasks (
+    id         INTEGER <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+    project_id INTEGER <span class="kw">REFERENCES</span> projects(id) <span class="kw">ON DELETE CASCADE</span>,
+    title      TEXT <span class="kw">NOT NULL</span>,
+    status     TEXT <span class="kw">DEFAULT</span> <span class="str">'todo'</span>,
+    assignee   TEXT,
+    due_date   TEXT
+);
+
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_tasks_project <span class="kw">ON</span> tasks(project_id);
+
+PRAGMA foreign_keys = <span class="kw">ON</span>;</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">FastAPI with SQLite — the dependency injection pattern</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">Python</span><span class="code-file">db_pattern.py</span></div>
+      <pre><code><span class="kw">import</span> sqlite3
+<span class="kw">from</span> fastapi <span class="kw">import</span> Depends
+
+<span class="kw">def</span> <span class="fn">get_db</span>():
+    conn = sqlite3.connect(<span class="str">"taskforge.db"</span>)
+    conn.row_factory = sqlite3.Row
+    conn.execute(<span class="str">"PRAGMA foreign_keys = ON"</span>)
+    <span class="kw">try</span>:
+        <span class="kw">yield</span> conn
+    <span class="kw">finally</span>:
+        conn.close()
+
+<span class="imp">@app.get</span>(<span class="str">"/projects"</span>)
+<span class="kw">def</span> <span class="fn">list_projects</span>(db: sqlite3.Connection = <span class="fn">Depends</span>(get_db)):
+    rows = db.execute(<span class="str">"SELECT * FROM projects ORDER BY created_at DESC"</span>).fetchall()
+    <span class="kw">return</span> [<span class="fn">dict</span>(row) <span class="kw">for</span> row <span class="kw">in</span> rows]
+
+<span class="imp">@app.post</span>(<span class="str">"/projects"</span>, status_code=<span class="num">201</span>)
+<span class="kw">def</span> <span class="fn">create_project</span>(proj: ProjectCreate, db = <span class="fn">Depends</span>(get_db)):
+    cursor = db.execute(
+        <span class="str">"""INSERT INTO projects (name, description, status)
+           VALUES (?, ?, ?) RETURNING *"""</span>,
+        (proj.name, proj.description, proj.status)
+    )
+    db.commit()
+    <span class="kw">return</span> <span class="fn">dict</span>(cursor.fetchone())</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">React — components, state, and how it all connects</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">JavaScript (JSX)</span><span class="code-file">react_concepts.jsx</span></div>
+      <pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ProjectCard</span>({ project, onClick }) {
+    <span class="kw">return</span> (
+        &lt;div className=<span class="str">"card"</span> onClick={onClick}&gt;
+            &lt;h3&gt;{project.name}&lt;/h3&gt;
+            &lt;p&gt;{project.description}&lt;/p&gt;
+            &lt;span&gt;{project.task_count} tasks&lt;/span&gt;
+        &lt;/div&gt;
+    );
+}
+
+<span class="kw">function</span> <span class="fn">ProjectList</span>() {
+    <span class="kw">const</span> [projects, setProjects] = useState([]);
+    <span class="kw">const</span> [loading, setLoading] = useState(<span class="kw">true</span>);
+    <span class="kw">const</span> [showForm, setShowForm] = useState(<span class="kw">false</span>);
+
+    useEffect(() => {
+        fetch(<span class="str">'http://localhost:8001/projects'</span>)
+            .then(res => res.json())
+            .then(data => {
+                setProjects(data);
+                setLoading(<span class="kw">false</span>);
+            });
+    }, []);
+
+    <span class="kw">if</span> (loading) <span class="kw">return</span> &lt;div&gt;Loading...&lt;/div&gt;;
+
+    <span class="kw">return</span> (
+        &lt;div&gt;
+            &lt;button onClick={() => setShowForm(<span class="kw">true</span>)}&gt;New Project&lt;/button&gt;
+            {projects.<span class="fn">map</span>(p =&gt; (
+                &lt;ProjectCard
+                    key={p.id}
+                    project={p}
+                    onClick={() => <span class="fn">navigateTo</span>(p.id)}
+                /&gt;
+            ))}
+            {showForm &amp;&amp; &lt;ProjectForm onClose={() => setShowForm(<span class="kw">false</span>)}/&gt;}
+        &lt;/div&gt;
+    );
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">CRUD operations — POST, PATCH, DELETE from React</h3>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">JavaScript</span><span class="code-file">crud_operations.js</span></div>
+      <pre><code><span class="kw">async function</span> <span class="fn">createTask</span>(taskData) {
+    <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'http://localhost:8001/tasks'</span>, {
+        method: <span class="str">'POST'</span>,
+        headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+        body: JSON.stringify(taskData)
+    });
+    <span class="kw">if</span> (!response.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">'Failed to create task'</span>);
+    <span class="kw">return</span> response.json();
+}
+
+<span class="kw">async function</span> <span class="fn">updateTask</span>(taskId, changes) {
+    <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">`http://localhost:8001/tasks/${taskId}`</span>, {
+        method: <span class="str">'PATCH'</span>,
+        headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+        body: JSON.stringify(changes)
+    });
+    <span class="kw">return</span> response.json();
+}
+
+<span class="kw">async function</span> <span class="fn">deleteTask</span>(taskId) {
+    <span class="kw">await</span> fetch(<span class="str">`http://localhost:8001/tasks/${taskId}`</span>, {
+        method: <span class="str">'DELETE'</span>
+    });
+}
+
+<span class="kw">async function</span> <span class="fn">handleStatusChange</span>(taskId, newStatus) {
+    setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, status: newStatus } : t
+    ));
+    <span class="kw">try</span> {
+        <span class="kw">await</span> <span class="fn">updateTask</span>(taskId, { status: newStatus });
+    } <span class="kw">catch</span>(e) {
+        setTasks(prev => prev.map(t =>
+            t.id === taskId ? { ...t, status: <span class="str">'todo'</span> } : t
+        ));
+    }
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="skills-learned">
+    <div class="skill-tags">
+      <span class="skill-tag">React useState</span><span class="skill-tag">useEffect</span>
+      <span class="skill-tag">Component composition</span><span class="skill-tag">Props passing</span>
+      <span class="skill-tag">Conditional rendering</span><span class="skill-tag">List rendering with .map()</span>
+      <span class="skill-tag">fetch() + async/await</span><span class="skill-tag">SQLite foreign keys</span>
+      <span class="skill-tag">ON DELETE CASCADE</span><span class="skill-tag">Depends() injection</span>
+      <span class="skill-tag">PATCH vs PUT vs POST</span><span class="skill-tag">CSS Variables design system</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ═══════════════════════════════════════════════════ MINDSET -->
+<div class="project-section" id="mindset">
+  <div class="project-header pmindset">
+    <p class="project-num">// MENTAL_MODELS</p>
+    <h2>★ How I Think When Building</h2>
+    <p>The process that works behind every project. Not code — thinking.</p>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">The question I ask before writing any code</h3>
+    <p>Before I open my editor, I ask: <strong>"What is the data flow?"</strong> Where does data come from? What shape is it in? What do I do to it? Where does it end up?</p>
+    <p>Every project above is just a data flow:</p>
+    <ul class="learn-list">
+      <li><strong>Stock Dashboard:</strong> Yahoo API → OHLCV DataFrame → compute metrics → Plotly chart → user screen</li>
+      <li><strong>Anomaly Detector:</strong> User CSV → pandas → StandardScaler → IsolationForest → labels + scores → Plotly scatter → download button</li>
+      <li><strong>Text Classifier:</strong> JSON request → Pydantic validates → cache check → BART model → JSON response</li>
+      <li><strong>Task Manager:</strong> User click → React state update → fetch() → FastAPI → SQL → SQLite → JSON → React re-render</li>
+    </ul>
+    <p>Draw this flow on paper before touching code. It takes 5 minutes and saves 5 hours.</p>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">How to choose libraries — my decision tree</h3>
+    <table class="concept-table">
+      <tr><th>Problem</th><th>Use</th><th>Why</th></tr>
+      <tr><td>Pull financial data</td><td>yfinance</td><td>Wraps Yahoo Finance for free, returns DataFrames</td></tr>
+      <tr><td>Data manipulation</td><td>pandas</td><td>Excel for programmers — every data operation in one line</td></tr>
+      <tr><td>Maths on arrays</td><td>numpy</td><td>Vectorised operations — 100x faster than Python loops</td></tr>
+      <tr><td>ML models</td><td>scikit-learn</td><td>Best API design in ML — fit/predict/transform pattern</td></tr>
+      <tr><td>Deep learning/NLP</td><td>PyTorch + HuggingFace</td><td>Pre-trained models for everything</td></tr>
+      <tr><td>Charts</td><td>Plotly</td><td>Interactive by default, works in browser and notebooks</td></tr>
+      <tr><td>Quick data apps</td><td>Streamlit</td><td>Pure Python → web app in 20 minutes</td></tr>
+      <tr><td>Production API</td><td>FastAPI</td><td>Fast, auto-docs, Pydantic validation built in</td></tr>
+      <tr><td>Light database</td><td>SQLite</td><td>No server needed, file-based, perfect for single apps</td></tr>
+      <tr><td>Production database</td><td>PostgreSQL</td><td>When you need concurrent writes, advanced queries, scale</td></tr>
+      <tr><td>Frontend UI</td><td>React</td><td>Component model, huge ecosystem, employer demand</td></tr>
+    </table>
+  </div>
+
+  <div class="content-block">
+    <h3 class="block-title">The build order that always works</h3>
+    <ol class="steps">
+      <li>
+        <div class="step-content">
+          <p class="step-title">Get the data working first</p>
+          <p class="step-desc">Before any UI. Just print it. Verify the shape, types, and values are what you expect. Fix all data issues here.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <p class="step-title">Build the core logic</p>
+          <p class="step-desc">The computation, model, or API — in isolation, tested in a notebook or with simple print statements. No UI yet.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <p class="step-title">Add the simplest possible UI</p>
+          <p class="step-desc">Get something visible. Ugly is fine. The point is seeing real output from your real logic.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <p class="step-title">Handle errors and edge cases</p>
+          <p class="step-desc">What if the data is empty? What if the API fails? What if someone uploads the wrong file type? Handle these explicitly.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <p class="step-title">Polish and deploy</p>
+          <p class="step-desc">Clean up the UI, write a README, push to GitHub, deploy to Streamlit Cloud / Railway. Get a live URL.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="callout callout-why">
+    <strong>The most important thing I can tell you:</strong> Build things that work end-to-end, even if ugly, before making anything beautiful. A working ugly project beats a beautiful project that crashes on real data every single time. Clients and employers care about working, not perfect.
+  </div>
+</div>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <div class="wrapper">
+    <h3>PRITAMA PATRA</h3>
+    <p>B.Tech CSE · SRM IST · CGPA 8.5 · IIT Guwahati Data Analyst Certified</p>
+    <div class="footer-line">
+      <a href="https://github.com/anomalous_lady">github.com/anomalous_lady</a>
+      <span class="footer-sep">◆</span>
+      <a href="https://linkedin.com/in/pritama-p">linkedin.com/in/pritama-p</a>
+      <span class="footer-sep">◆</span>
+      <a href="mailto:sinwilderr@gmail.com">sinwilderr@gmail.com</a>
+    </div>
+    <p style="margin-top:20px;font-size:0.75rem;color:var(--edge2);font-family:var(--font-code)">// OPEN IN BROWSER · OPEN TO WORK IMMEDIATELY</p>
+  </div>
+</footer>
+
+<script>
+const ring = document.getElementById('cursor-ring');
+const dot  = document.getElementById('cursor-dot');
+const ch   = document.getElementById('cursor-cross-h');
+const cv   = document.getElementById('cursor-cross-v');
+
+let mx = -100, my = -100;
+let rx = -100, ry = -100;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px';
+  dot.style.top  = my + 'px';
+  ch.style.left  = mx + 'px';
+  ch.style.top   = my + 'px';
+  cv.style.left  = mx + 'px';
+  cv.style.top   = my + 'px';
+});
+
+(function animateRing() {
+  rx += (mx - rx) * 0.14;
+  ry += (my - ry) * 0.14;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animateRing);
+})();
+
+document.querySelectorAll('a, button, .toc-list a, .hero-tag, .skill-tag, .stack-pill').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.width  = '50px';
+    ring.style.height = '50px';
+    ring.style.borderColor = '#FFB800';
+    ring.style.boxShadow = '0 0 12px rgba(255,184,0,0.7), inset 0 0 10px rgba(255,184,0,0.1)';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.width  = '32px';
+    ring.style.height = '32px';
+    ring.style.borderColor = '#00D4FF';
+    ring.style.boxShadow = '0 0 8px rgba(0,212,255,0.6), inset 0 0 8px rgba(0,212,255,0.1)';
+  });
+});
+
+document.querySelectorAll('.code-wrap').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.width  = '42px';
+    ring.style.height = '42px';
+    ring.style.borderColor = '#39FF14';
+    ring.style.boxShadow = '0 0 12px rgba(57,255,20,0.6), inset 0 0 10px rgba(57,255,20,0.08)';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.width  = '32px';
+    ring.style.height = '32px';
+    ring.style.borderColor = '#00D4FF';
+    ring.style.boxShadow = '0 0 8px rgba(0,212,255,0.6), inset 0 0 8px rgba(0,212,255,0.1)';
+  });
+});
+</script>
+</body>
+</html>
